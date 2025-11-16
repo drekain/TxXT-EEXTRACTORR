@@ -61,7 +61,13 @@ async def get_course_content(session, course_id, folder_id=0):
 
     return fetched_contents
 
-async def classplus_txt(message, session, user_id):
+
+# ------------------------------------------------------------------------------------------------------------------------------- #
+# FIXED FUNCTION — REMOVED user_id PARAMETER
+# ------------------------------------------------------------------------------------------------------------------------------- #
+
+async def classplus_txt(message, session):
+
     headers = {
         'accept-encoding': 'gzip',
         'accept-language': 'EN',
@@ -97,6 +103,7 @@ async def classplus_txt(message, session, user_id):
 
         logged_in = False
 
+        # -------- LOGIN WITH ORG CODE + PHONE NO -------- #
         if '\n' in creds:
             org_code, phone_no = [cred.strip() for cred in creds.split('\n')]
 
@@ -184,11 +191,11 @@ async def classplus_txt(message, session, user_id):
             else:
                 raise Exception('Failed to validate credentials.')
 
+        # -------- LOGIN WITH ACCESS TOKEN -------- #
         else:
 
             token = creds.strip()
             session.headers['x-access-token'] = token
-
 
             res = session.get(f'{api}/users/details')
 
@@ -201,7 +208,7 @@ async def classplus_txt(message, session, user_id):
             else:
                 raise Exception('Failed to get user details.')
 
-
+        # -------- IF LOGIN SUCCESS -------- #
         if logged_in:
 
             params = {
@@ -272,7 +279,6 @@ async def classplus_txt(message, session, user_id):
                             os.remove(f'{text_file}.txt')
                             os.remove(html_file)
                             
-
                         else:
                             raise Exception('Did not found any content in course.')
                     else:
@@ -281,9 +287,7 @@ async def classplus_txt(message, session, user_id):
                     raise Exception('Did not found any course.')
             else:
                 raise Exception('Failed to get courses.')
-            
 
-   
     except Exception as e:
         print(f"Error: {e}")
         await message.reply(
@@ -295,10 +299,16 @@ async def classplus_txt(message, session, user_id):
             quote=True
         )
 
+
+# ------------------------------------------------------------------------------------------------------------------------------- #
+# HANDLER FIXED
+# ------------------------------------------------------------------------------------------------------------------------------- #
+
 @app.on_message(filters.command("extract") & filters.user(SUDO_USERS))
 async def extract_handler(client, message):
     session = requests.Session()
-    await classplus_txt(message, session, user_id=None)
+    await classplus_txt(message, session)
+
 
 app.start()
 idle()
