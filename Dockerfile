@@ -10,16 +10,16 @@ RUN pip3 install --no-cache-dir -U pip
 
 # Copy requirements
 COPY requirements.txt /requirements.txt
-
-# Install Python dependencies
 RUN pip3 install --no-cache-dir -r /requirements.txt
 
-# Working dir
-WORKDIR /EXTRACTOR
+# Set working directory
+WORKDIR /app
 
-# Copy start script
-COPY start.sh ./start.sh
-RUN chmod +x start.sh
+# Copy entire project into container
+COPY . /app
 
-# Start the bot
-CMD ["bash", "start.sh"]
+# Make start.sh executable
+RUN chmod +x /app/start.sh
+
+# Run start script
+CMD ["bash", "/app/start.sh"]
