@@ -1,0 +1,28 @@
+
+# Python Base Image
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl ffmpeg aria2 build-essential gcc libffi-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip3 install --no-cache-dir -U pip
+
+# Copy requirements
+COPY requirements.txt /requirements.txt
+
+# Install python dependencies
+RUN pip3 install --no-cache-dir -r /requirements.txt
+
+# Create working directory
+RUN mkdir /EXTRACTOR
+WORKDIR /EXTRACTOR
+
+# Copy start script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Start the bot
+CMD ["/bin/bash", "/start.sh"]
